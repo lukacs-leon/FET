@@ -1,10 +1,14 @@
 fn main() {
+    println!("{}", can_wish());
+}
+fn can_wish() -> String {
    let points = 2004; //place back 'mut'
    const TARGET : i32 = 1000;
    let difference = points - TARGET;
-   if points >= TARGET {
-    println!("The user can wish for something. (Difference: {})", difference);
+   let message = if points >= TARGET {
+       format!("The user can wish for something. (Difference: {})", difference)
    } else {
-    println!("The user can't wish anything. (Difference: {})", difference * -1);
-   }
+       format!("The user can't wish anything. (still missing: {})", -difference)
+   };
+   message
 }
