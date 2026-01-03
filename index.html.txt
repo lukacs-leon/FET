@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thinking Space</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- HERO -->
+  <section class="hero">
+    <h1>This is a thinking experiment.</h1>
+    <p>Not finished. Not final. Intentionally incomplete.</p>
+    <button class="action-btn">Enter</button>
+  </section>
+
+  <!-- WHAT IS THIS -->
+  <section>
+    <h2>What is this, really?</h2>
+    <p>
+      This is not a product. Not a demo. Not a marketing page.
+      <br><br>
+      It is a publicly built thinking space — where ideas, systems,
+      and UX concepts are explored. Not everything is useful.
+      Everything is intentional.
+    </p>
+  </section>
+
+  <!-- INTERACTIONS -->
+  <section>
+    <h2>Interactions & Experiments</h2>
+    <p>
+      Some elements respond. Some wait. Some do nothing.
+      <br><br>
+      Not every reaction provides information.
+      Sometimes the experience itself is the answer.
+    </p>
+
+    <div class="media-placeholder">[ image / video placeholder ]</div>
+
+    <div class="buttons">
+      <button class="action-btn">Try this</button>
+      <button class="action-btn">Or this</button>
+      <button class="action-btn">Maybe this</button>
+    </div>
+  </section>
+
+  <!-- PROJECT STATE -->
+  <section>
+    <h2>Project State</h2>
+    <ul>
+      <li>What exists</li>
+      <li>What is being explored</li>
+      <li>What is still a question</li>
+    </ul>
+  </section>
+
+  <!-- WHY -->
+  <section>
+    <h2>Why does it exist?</h2>
+    <p>
+      Not every project exists for a destination.
+      <br>
+      Some exist for the path.
+      <br><br>
+      Thinking is not slowness.
+      <br>
+      Experimentation is not uncertainty.
+    </p>
+  </section>
+
+  <!-- CLOSING -->
+  <section class="closing">
+    <p>Look around.</p>
+    <p>Come back later.</p>
+    <p>This will change.</p>
+  </section>
+
+  <footer>
+    <small>Simple web experiment, built in the open.</small>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
