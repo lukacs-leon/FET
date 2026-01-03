@@ -1,9 +1,174 @@
 <!DOCTYPE html>
-<html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <title>Grafikai Demo Page</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    /* -------- RESET -------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+        url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee");
+      background-size: cover;
+      background-position: center;
+      color: #eaeaea;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+    }
+
+    /* -------- CONTAINER -------- */
+    .container {
+      max-width: 900px;
+      width: 100%;
+      display: grid;
+      gap: 32px;
+    }
+
+    /* -------- GLASS CARD -------- */
+    .card {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(14px);
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+
+    /* -------- TEXT STYLES -------- */
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 16px;
+    }
+
+    .highlight {
+      color: #4fd1ff;
+      font-weight: 600;
+    }
+
+    .muted {
+      color: #b5b5b5;
+    }
+
+    /* Rainbow transparent text */
+    .rainbow-text {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(
+        90deg,
+        #ff4ecd,
+        #ffae00,
+        #00ff9c,
+        #4fd1ff,
+        #9b5cff
+      );
+      background-size: 300%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: rainbow 6s linear infinite;
+    }
+
+    @keyframes rainbow {
+      0% { background-position: 0%; }
+      100% { background-position: 300%; }
+    }
+
+    /* -------- BUTTONS -------- */
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    button {
+      padding: 14px 22px;
+      border-radius: 12px;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4fd1ff, #9b5cff);
+      color: #000;
+      font-weight: 600;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(79,209,255,0.4);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid #4fd1ff;
+      color: #4fd1ff;
+    }
+
+    .btn-outline:hover {
+      background: #4fd1ff;
+      color: #000;
+    }
+
+    .btn-glow {
+      background: #ff4ecd;
+      color: white;
+      box-shadow: 0 0 15px rgba(255,78,205,0.7);
+    }
+
+    .btn-glow:hover {
+      box-shadow: 0 0 30px rgba(255,78,205,1);
+      transform: scale(1.05);
+    }
+
+    /* -------- FOOTER TEXT -------- */
+    .footer {
+      text-align: center;
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+
 <body>
+  <div class="container">
 
-<h1>My First Heading</h1>
-<p>My first paragraph.</p>
+    <div class="card">
+      <h1>Egyszerű <span class="highlight">Grafikai Demo</span></h1>
+      <p class="muted">
+        Ez egy minimál, mégis látványos weboldal:
+        <br>
+        glassmorphism, animált szöveg és modern gombok.
+      </p>
+    </div>
 
+    <div class="card">
+      <div class="rainbow-text">Szivárványos, áttetsző szöveg ✨</div>
+
+      <div class="buttons">
+        <button class="btn-primary">Primary gomb</button>
+        <button class="btn-outline">Outline gomb</button>
+        <button class="btn-glow">Glow gomb</button>
+      </div>
+    </div>
+
+    <div class="footer">
+      GitHub Pages-ready • index.html • no framework
+    </div>
+
+  </div>
 </body>
 </html>
