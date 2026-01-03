@@ -1,248 +1,269 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>GitHub Pages – UI Demo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<title>GitHub Pages – Loading UX Demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <style>
-    /* ===== RESET ===== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
+<style>
+/* ===== RESET ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
 
-    body {
-      min-height: 100vh;
-      background:
-        linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
-        url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee");
-      background-size: cover;
-      background-position: center;
-      color: #eaeaea;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 40px;
-    }
+body {
+  min-height: 100vh;
+  background:
+    linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+    url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee");
+  background-size: cover;
+  background-position: center;
+  color: #eaeaea;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
 
-    .container {
-      max-width: 900px;
-      width: 100%;
-      display: grid;
-      gap: 32px;
-    }
+/* ===== CONTAINER ===== */
+.container {
+  max-width: 900px;
+  width: 100%;
+  display: grid;
+  gap: 32px;
+}
 
-    /* ===== GLASS CARD ===== */
-    .card {
-      background: rgba(255,255,255,0.08);
-      backdrop-filter: blur(14px);
-      border-radius: 20px;
-      padding: 32px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    }
+/* ===== CARD ===== */
+.card {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(14px);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
 
-    h1 {
-      font-size: 2.8rem;
-      margin-bottom: 12px;
-    }
+h1 {
+  font-size: 2.6rem;
+  margin-bottom: 12px;
+}
 
-    .highlight {
-      color: #4fd1ff;
-      font-weight: 600;
-    }
+.muted {
+  color: #b5b5b5;
+}
 
-    .muted {
-      color: #b5b5b5;
-    }
+/* ===== BUTTONS ===== */
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 20px;
+}
 
-    /* ===== RAINBOW TEXT ===== */
-    .rainbow-text {
-      font-size: 2.4rem;
-      font-weight: 800;
-      background: linear-gradient(
-        90deg,
-        #ff4ecd,
-        #ffae00,
-        #00ff9c,
-        #4fd1ff,
-        #9b5cff
-      );
-      background-size: 300%;
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
-      animation: rainbow 6s linear infinite;
-      margin-bottom: 24px;
-    }
+button {
+  padding: 14px 22px;
+  border-radius: 12px;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+}
 
-    @keyframes rainbow {
-      from { background-position: 0%; }
-      to { background-position: 300%; }
-    }
+.btn-dummy {
+  background: #4fd1ff;
+  color: #000;
+  font-weight: 600;
+}
 
-    /* ===== VIDEO ===== */
-    video {
-      width: 100%;
-      border-radius: 14px;
-      margin-top: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    }
+.btn-loader {
+  background: #ffffff;
+  color: #000;
+}
 
-    /* ===== BUTTONS ===== */
-    .buttons {
-      display: grid;
-      gap: 20px;
-      margin-top: 24px;
-    }
+/* ===== FULLSCREEN LOADING OVERLAY ===== */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: #f5f5f7;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
 
-    button {
-      position: relative;
-      padding: 14px 22px;
-      border-radius: 12px;
-      border: none;
-      font-size: 1rem;
-      cursor: pointer;
-      overflow: hidden;
-    }
+.loading-overlay.active {
+  display: flex;
+}
 
-    /* --- Linear loading button --- */
-    .btn-linear {
-      background: #4fd1ff;
-      color: #000;
-      font-weight: 600;
-    }
+.loader-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 40px);
+  gap: 20px;
+}
 
-    .btn-linear::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      height: 100%;
-      width: 0%;
-      background: rgba(0,0,0,0.25);
-      transition: width 5s linear;
-    }
+/* ===== LOADERS (10 variants) ===== */
+.loader {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
 
-    .btn-linear.loading::after {
-      width: 100%;
-    }
+/* 1 */
+.spin {
+  border: 3px solid #ddd;
+  border-top: 3px solid #000;
+  animation: spin 1s linear infinite;
+}
 
-    /* --- Pulse loading button --- */
-    .btn-pulse {
-      background: #ff4ecd;
-      color: white;
-    }
+/* 2 */
+.pulse {
+  background: #000;
+  animation: pulse 1s infinite;
+}
 
-    .btn-pulse.loading {
-      animation: pulse 1s infinite;
-    }
+/* 3 */
+.bounce {
+  background: #000;
+  animation: bounce 0.8s infinite alternate;
+}
 
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 rgba(255,78,205,0.6); }
-      50% { box-shadow: 0 0 25px rgba(255,78,205,1); }
-      100% { box-shadow: 0 0 0 rgba(255,78,205,0.6); }
-    }
+/* 4 */
+.scale {
+  background: #000;
+  animation: scale 0.9s infinite alternate;
+}
 
-    /* --- Spinner button --- */
-    .btn-spinner {
-      background: #9b5cff;
-      color: white;
-    }
+/* 5 */
+.fade {
+  background: #000;
+  animation: fade 1.2s infinite;
+}
 
-    .spinner {
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255,255,255,0.3);
-      border-top: 3px solid white;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: auto;
-      display: none;
-    }
+/* 6 */
+.rotate {
+  border: 3px solid #000;
+  border-color: #000 transparent;
+  animation: spin 1.2s linear infinite;
+}
 
-    .btn-spinner.loading span {
-      display: none;
-    }
+/* 7 */
+.dot {
+  background: #000;
+  animation: fade 0.6s infinite alternate;
+}
 
-    .btn-spinner.loading .spinner {
-      display: block;
-    }
+/* 8 */
+.square {
+  width: 24px;
+  height: 24px;
+  background: #000;
+  animation: rotate-square 1s infinite linear;
+}
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+/* 9 */
+.ring {
+  border: 3px solid #000;
+  border-radius: 50%;
+  animation: scale 0.8s infinite alternate;
+}
 
-    .footer {
-      text-align: center;
-      font-size: 0.9rem;
-      opacity: 0.7;
-    }
-  </style>
+/* 10 */
+.wave {
+  background: #000;
+  animation: bounce 0.5s infinite alternate;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0% { opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { opacity: 0.3; }
+}
+
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to { transform: translateY(-10px); }
+}
+
+@keyframes scale {
+  from { transform: scale(0.6); }
+  to { transform: scale(1); }
+}
+
+@keyframes fade {
+  from { opacity: 0.2; }
+  to { opacity: 1; }
+}
+
+@keyframes rotate-square {
+  to { transform: rotate(90deg); }
+}
+</style>
 </head>
 
 <body>
-  <div class="container">
 
-    <div class="card">
-      <h1>UI <span class="highlight">Demo Page</span></h1>
-      <p class="muted">
-        GitHub Pages ready • HTML + CSS + minimal JS
-      </p>
-    </div>
+<!-- ===== LOADING OVERLAY ===== -->
+<div class="loading-overlay" id="overlay">
+  <div class="loader-grid">
+    <div class="loader spin"></div>
+    <div class="loader pulse"></div>
+    <div class="loader bounce"></div>
+    <div class="loader scale"></div>
+    <div class="loader fade"></div>
+    <div class="loader rotate"></div>
+    <div class="loader dot"></div>
+    <div class="loader square"></div>
+    <div class="loader ring"></div>
+    <div class="loader wave"></div>
+  </div>
+</div>
 
-    <div class="card">
-      <div class="rainbow-text">Animated transparent rainbow text</div>
+<div class="container">
 
-      <!-- VIDEO PLAYER -->
-      <video controls>
-        <!-- Replace with your own video file if needed -->
-        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-      </video>
-
-      <!-- LOADING BUTTONS -->
-      <div class="buttons">
-        <button class="btn-linear" onclick="startLinear(this)">
-          Linear 5s loading
-        </button>
-
-        <button class="btn-pulse" onclick="startPulse(this)">
-          Pulse 5s loading
-        </button>
-
-        <button class="btn-spinner" onclick="startSpinner(this)">
-          <span>Spinner 5s loading</span>
-          <div class="spinner"></div>
-        </button>
-      </div>
-    </div>
-
-    <div class="footer">
-      index.html • GitHub Pages compatible • no framework
-    </div>
-
+  <div class="card">
+    <h1>Real Loading Experience</h1>
+    <p class="muted">
+      System-style fullscreen loading overlay with multiple loaders.
+    </p>
   </div>
 
-  <script>
-    // ===== LOADING LOGIC =====
+  <div class="card">
+    <h3>Loader-trigger buttons</h3>
+    <div class="buttons">
+      <button class="btn-loader" onclick="startLoading()">Start loading</button>
+      <button class="btn-loader" onclick="startLoading()">Start loading</button>
+      <button class="btn-loader" onclick="startLoading()">Start loading</button>
+    </div>
+  </div>
 
-    function startLinear(btn) {
-      btn.classList.add("loading");
-      setTimeout(() => btn.classList.remove("loading"), 5000);
-    }
+  <div class="card">
+    <h3>Old dummy buttons (no action)</h3>
+    <div class="buttons">
+      <button class="btn-dummy">Primary</button>
+      <button class="btn-dummy">Outline</button>
+      <button class="btn-dummy">Glow</button>
+    </div>
+  </div>
 
-    function startPulse(btn) {
-      btn.classList.add("loading");
-      setTimeout(() => btn.classList.remove("loading"), 5000);
-    }
+</div>
 
-    function startSpinner(btn) {
-      btn.classList.add("loading");
-      setTimeout(() => btn.classList.remove("loading"), 5000);
-    }
-  </script>
+<script>
+// ===== LOADING CONTROL =====
+function startLoading() {
+  const overlay = document.getElementById("overlay");
+  overlay.classList.add("active");
+
+  setTimeout(() => {
+    overlay.classList.remove("active");
+  }, 5000);
+}
+</script>
+
 </body>
 </html>
