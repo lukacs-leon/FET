@@ -1,6 +1,20 @@
 import sqlite3
 conn = sqlite3.connect('FET.db')
 cursor = conn.cursor()
+GREEN = "\033[32m"
+RESET = "\033[0m"
+
+def print_welcome():
+    banner = f"""{GREEN}
+ ██╗    ██╗███████╗██╗      ██████╗ ███╗   ███╗███████╗    ████████╗ ██████╗  ███████╗███████╗████████╗
+ ██║    ██║██╔════╝██║     ██╔════╝ ████╗ ████║██╔════╝    ╚══██╔══╝██╔═══██╗ ██╔════╝██╔════╝╚══██╔══╝
+ ██║ █╗ ██║█████╗  ██║     ██║      ██╔████╔██║█████╗         ██║   ██║   ██║ █████╗  █████╗     ██║
+ ██║███╗██║██╔══╝  ██║     ██║      ██║╚██╔╝██║██╔══╝         ██║   ██║   ██║ ██╔══╝  ██╔══╝     ██║
+ ╚███╔███╔╝███████╗███████╗╚██████╗ ██║ ╚═╝ ██║███████╗       ██║   ╚██████╔╝ ██║     ███████╗   ██║
+  ╚══╝╚══╝ ╚══════╝╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚══════╝       ╚═╝    ╚═════╝  ╚═╝     ╚══════╝   ╚═╝
+{GREEN} 'a place where you can transform your family life{RESET}
+    """
+    print(banner)
 
 def get_input(text_to_ask):
     return input(text_to_ask)
@@ -46,6 +60,7 @@ def search_in_users_by_id(user_id):
     return cursor.fetchone()
 
 def main():
+    print_welcome()
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS users (
