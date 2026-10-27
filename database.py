@@ -9,7 +9,10 @@ cursor = conn.cursor()
 
 GREEN = "\033[32m"
 RED =  "\033[31m"
+YELLOW = "\033[33m"
 RESET = "\033[0m"
+
+#STARTING FUNCTIONS
 
 def print_welcome():
     banner = f"""{GREEN}
@@ -46,15 +49,17 @@ def SETUP():
 
 #DEBUGING
 
-def print_error(value, error=None):
+def print_error(text, error=None):
     print(f"{RED}ERROR!")
-    print(f"{value}")
+    print(f"{text}")
     if error != None:
         print(f"{error}")
     else:
         print("No error explanation has given.")
     print(RESET)
 
+def print_warning(text):
+    print(f"{YELLOW}{text}{RESET}")
 
 #ADD
 
@@ -88,17 +93,32 @@ def check_user(user_id):
     user_existing = cursor.fetchone()
     return user_existing
 
-def check_table(table):
+def check_table(table: Literal["users", "ledger"]):
     if table in ("users", "ledger"):
         return True
     else:
-        print_error(value="Invalid table name!")
+        print_error("Invalid table name!")
+        return
 
-def check_add_type(add_type):
+def check_add_type(add_type: Literal["users", "point"]):
     if add_type in ("user", "point"):
         return True
     else:
-        print_error(value="Incorrect add type")
+        print_error("Incorrect add type")
+        return
+
+def check_search_type(search_type):
+    if search_type in ("users", "ledger"):
+        return True
+    else:
+        print_error(f"Icorrect search type! {search_type}")
+        return
+
+def check_search_by_what_at_users(search_by_what_at_users):
+    if search_by_what_at_users in ("1", "2", "user_id", "current balance"):
+        return True
+    else:
+        print_error(f"Incorrect search by what at users ({search_by_what_at_users})")
         return
 
 #GET
@@ -106,21 +126,40 @@ def check_add_type(add_type):
 def get_input(text_to_ask):
     return input(text_to_ask)
 
+def get_table_data(table):
+    cursor.execute(f"SELECT * FROM {table}")
+    data = cursor.fetchall()
+    return data
+
 #SEARCH
 
 def search_in_users_by_id(user_id):
     cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
     return cursor.fetchone()
 
+def search_in_users_by_balance(balance):
+    cursor.execute("SELECT * FROM users WHERE current_balance = ?", (balance,))
+    return cursor.fetchall()
+
+
 #LISTING
 
-def listing_table(table: Literal["users", "ledger"]):
+def list_table(table: Literal["users", "ledger"]):
     if check_table(table):
-        data = read_table(table)
-        for row in data:
-            print(row)
+        data = get_table_data(table)
+        print_output_row_by_row(data)
     else:
-        print_error(value="Incorrect table name!")
+        print_error("Incorrect table name!")
+        return
+
+def list_output_from_db(data):
+    print_output_row_by_row(data)
+
+#OUTUT PRINTER
+
+def print_output_row_by_row(data):
+    for row in data:
+        print(row)
 
 
 
@@ -129,14 +168,6 @@ def listing_table(table: Literal["users", "ledger"]):
 
 
 
-
-
-
-
-def read_table(table):
-    cursor.execute(f"SELECT * FROM {table}")
-    data = cursor.fetchall()
-    return data
 
 
 
@@ -148,10 +179,14 @@ def main():
             cmd = get_input("Write a command: (ls, add, search or exit) \n").lower()
             if cmd == "ls":
                 table = get_input("Which table do you want list? (users / ledger) \n").lower()
-                listing_table(table)
+                if check_table(table):
+                    list_table(table)
+                else:
+                    print_error(f"Incorrect table name: {table}")
+                    continue
             elif cmd == "add":
                 add_type = get_input("What do you want to add? user / point? \n").lower()
-                if add_type in ("user", "point"):
+                if check_add_type(add_type):
                     if add_type == "user":
                         user_id = get_input("What is the user name? (This get_input is case sensitive!) \n")
                         add_user(user_id)
@@ -162,34 +197,40 @@ def main():
                         try:
                             points = int(points)
                         except:
-                            print(f"Something went wrong, with the value points ({points})")
+                            print_error(f"Something went wrong, with the value of the points ({points})")
+                            continue
                         add_points(user_id, points, reason)
             elif cmd == "search":
                 search_type = get_input("Where do you want to search? users / ledger? \n").lower()
-                if search_type in ("users", "ledger"):
+                if check_search_type(search_type):
                     if search_type == "users":
-                        search_by_what = get_input("What do you want to search by? \n 1 => user_id \n 2 => current balance \n 3 => both \n")
-                        if search_by_what in ("1", "2", "3"):
-                            if search_by_what == "1":
+                        search_by_what_at_users = get_input("What do you want to search by? \n 1 => user_id \n 2 => current balance \n 3 => conditions \n").lower()
+                        if check_search_by_what_at_users(search_by_what_at_users):
+                            if search_by_what_at_users in ("1", "user_id"):
                                 search_for_user_id = get_input("What user ID do you look for? (this is case sensitive) \n")
                                 print(search_in_users_by_id(search_for_user_id))
-                            elif search_by_what == "2":
-                                pass
-                            elif search_by_what == "3":
-                                pass
+                            elif search_by_what_at_users in ("2", "current balance"):
+                                balance = get_input("What balance do you looking for?")
+                                try:
+                                    balance = int(balance)
+                                except Exception as e:
+                                    print_error("Incorrect balance!", error=e)
+                                    continue
+                                print_output_row_by_row(search_in_users_by_balance(balance))
                         else:
-                            print_error(value=f"Incorrect value! ({search_by_what})")
+                            print_error(f"Incorrect value! ({search_by_what_at_users})")
+                            continue
                     if search_type == "ledger":
-                        print("Didn't made yet!")
+                        print_warning("Didn't made yet")
                 else:
                     print_error(f"incorrect value! ({search_type})")
+                    continue
             elif cmd == "exit":
                 break
             else:
                 print("Unavailable comand!")
     except Exception as e:
         print_error(error=e)
-        conn.close()
 
 
 #RUNNING
