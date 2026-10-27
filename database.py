@@ -22,7 +22,7 @@ def print_welcome():
  ██║███╗██║██╔══╝  ██║     ██║      ██║╚██╔╝██║██╔══╝         ██║   ██║   ██║    ██╔══╝  ██╔══╝     ██║
  ╚███╔███╔╝███████╗███████╗╚██████╗ ██║ ╚═╝ ██║███████╗       ██║   ╚██████╔╝    ██║     ███████╗   ██║
   ╚══╝╚══╝ ╚══════╝╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚══════╝       ╚═╝    ╚═════╝     ╚═╝     ╚══════╝   ╚═╝
-{GREEN} 'a place where you can transform your family life{RESET}
+{GREEN} a place where you can transform your family life{RESET}
     """
     print(banner)
 
@@ -115,11 +115,19 @@ def check_search_type(search_type):
         return
 
 def check_search_by_what_at_users(search_by_what_at_users):
-    if search_by_what_at_users in ("1", "2", "user_id", "current balance"):
+    if search_by_what_at_users in ("1", "2", "3", "user_id", "current balance", "conditions"):
         return True
     else:
         print_error(f"Incorrect search by what at users ({search_by_what_at_users})")
         return
+
+def check_search_by_what_at_ledger(check_search_by_what_at_ledger):
+    if check_search_by_what_at_ledger in ("1", "2", "3", "user_id", "points", "reason"):
+        return True
+    else:
+        print_error(f"Incorrect search by what at users ({check_search_by_what_at_ledger})")
+        return
+
 
 #GET
 
@@ -141,6 +149,31 @@ def search_in_users_by_balance(balance):
     cursor.execute("SELECT * FROM users WHERE current_balance = ?", (balance,))
     return cursor.fetchall()
 
+def search_ledger_by_keywords(keywords):
+    if not keywords:
+        return []
+    
+    clauses = []
+    params = []
+    
+    for kw in keywords:
+        # Minden kulcsszóhoz adunk egy LIKE feltételt
+        clauses.append("reason LIKE ?")
+        # A százalékjelekkel veszzük körbe a kulcsszót, hogy bárhol benne lehetjen
+        params.append(f"%{kw}%")
+    
+    # Összekötjük őket OR-ral (ha bármelyik igaz, az sor jöhet)
+    # Pl: WHERE reason LIKE ? OR reason LIKE ? OR reason LIKE ?
+    sql_query = f"SELECT * FROM ledger WHERE {' OR '.join(clauses)}"
+    
+    cursor.execute(sql_query, tuple(params))
+    return cursor.fetchall()
+
+def search_ledger_by_user_id(user_id):
+    pass
+
+def search_ledger_by_point(point):
+    pass
 
 #LISTING
 
@@ -210,7 +243,7 @@ def main():
                                 search_for_user_id = get_input("What user ID do you look for? (this is case sensitive) \n")
                                 print(search_in_users_by_id(search_for_user_id))
                             elif search_by_what_at_users in ("2", "current balance"):
-                                balance = get_input("What balance do you looking for?")
+                                balance = get_input("What balance do you looking for? \n")
                                 try:
                                     balance = int(balance)
                                 except Exception as e:
@@ -221,7 +254,21 @@ def main():
                             print_error(f"Incorrect value! ({search_by_what_at_users})")
                             continue
                     if search_type == "ledger":
-                        print_warning("Didn't made yet")
+                        search_by_what_at_ledger = get_input("What do you want to search by? \n 1 => user_id \n 2 => points \n 3 => reason \n").lower()
+                        if check_search_by_what_at_ledger(search_by_what_at_ledger):
+                            if search_by_what_at_ledger in ("1", "user_id"):
+                                pass
+                                if search_by_what_at_ledger in ("2", "points"):
+                                    pass
+                            elif search_by_what_at_ledger in ("3", "reason"):
+                                keywords = []
+                                while True:
+                                    keyword_to_append = get_input("Add a keyword, if you don't want to add more, press enter. \n")
+                                    if keyword_to_append != "":
+                                        keywords.append(keyword_to_append)
+                                    else:
+                                        break
+                                print_output_row_by_row(search_ledger_by_keywords(keywords))
                 else:
                     print_error(f"incorrect value! ({search_type})")
                     continue
