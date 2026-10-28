@@ -132,7 +132,7 @@ def check_search_by_what_at_ledger(check_search_by_what_at_ledger):
 #GET
 
 def get_input(text_to_ask):
-    return input(text_to_ask)
+    return input(f"{text_to_ask} \n")
 
 def get_table_data(table):
     cursor.execute(f"SELECT * FROM {table}")
@@ -149,7 +149,7 @@ def search_in_users_by_balance(balance):
     cursor.execute("SELECT * FROM users WHERE current_balance = ?", (balance,))
     return cursor.fetchall()
 
-def search_ledger_by_keywords(keywords):
+def search_in_ledger_by_keywords(keywords):
     if not keywords:
         return []
     
@@ -169,11 +169,13 @@ def search_ledger_by_keywords(keywords):
     cursor.execute(sql_query, tuple(params))
     return cursor.fetchall()
 
-def search_ledger_by_user_id(user_id):
-    pass
+def search_in_ledger_by_user_id(user_id):
+    cursor.execute("SELECT * FROM ledger WHERE user_id = ?", (user_id,))
+    return cursor.fetchall()
 
-def search_ledger_by_point(point):
-    pass
+def search_in_ledger_by_point(point):
+    cursor.execute("SELECT * FROM ledger WHERE points = ?", (point,))
+    return cursor.fetchall()
 
 #LISTING
 
@@ -209,24 +211,24 @@ def main():
     SETUP()
     try:
         while True:
-            cmd = get_input("Write a command: (ls, add, search or exit) \n").lower()
+            cmd = get_input("Write a command: (ls, add, search or exit)").lower()
             if cmd == "ls":
-                table = get_input("Which table do you want list? (users / ledger) \n").lower()
+                table = get_input("Which table do you want list? (users / ledger)").lower()
                 if check_table(table):
                     list_table(table)
                 else:
                     print_error(f"Incorrect table name: {table}")
                     continue
             elif cmd == "add":
-                add_type = get_input("What do you want to add? user / point? \n").lower()
+                add_type = get_input("What do you want to add? user / point?").lower()
                 if check_add_type(add_type):
                     if add_type == "user":
-                        user_id = get_input("What is the user name? (This get_input is case sensitive!) \n")
+                        user_id = get_input("What is the user name? (This get_input is case sensitive!)")
                         add_user(user_id)
                     if add_type == "point":
-                        user_id = get_input("What is the user name? (This get_input is case sensitive!) \n")
-                        points = get_input("How much point do you want to add? (If you want to deduct, just write a minus) \n")
-                        reason = get_input("What is the reason? \n")
+                        user_id = get_input("What is the user name? (This get_input is case sensitive!)")
+                        points = get_input("How much point do you want to add? (If you want to deduct, just write a minus)")
+                        reason = get_input("What is the reason?")
                         try:
                             points = int(points)
                         except:
@@ -234,41 +236,50 @@ def main():
                             continue
                         add_points(user_id, points, reason)
             elif cmd == "search":
-                search_type = get_input("Where do you want to search? users / ledger? \n").lower()
+                search_type = get_input("Where do you want to search? users / ledger?").lower()
                 if check_search_type(search_type):
                     if search_type == "users":
-                        search_by_what_at_users = get_input("What do you want to search by? \n 1 => user_id \n 2 => current balance \n 3 => conditions \n").lower()
+                        search_by_what_at_users = get_input("What do you want to search by? \n 1 => user_id \n 2 => current balance \n 3 => conditions").lower()
                         if check_search_by_what_at_users(search_by_what_at_users):
                             if search_by_what_at_users in ("1", "user_id"):
-                                search_for_user_id = get_input("What user ID do you look for? (this is case sensitive) \n")
+                                search_for_user_id = get_input("What user ID do you look for? (this is case sensitive)")
                                 print(search_in_users_by_id(search_for_user_id))
                             elif search_by_what_at_users in ("2", "current balance"):
-                                balance = get_input("What balance do you looking for? \n")
+                                balance = get_input("What balance do you looking for?")
                                 try:
                                     balance = int(balance)
                                 except Exception as e:
                                     print_error("Incorrect balance!", error=e)
                                     continue
                                 print_output_row_by_row(search_in_users_by_balance(balance))
+                            elif search_by_what_at_users in ("3", "conditions"):
+                                pass
                         else:
                             print_error(f"Incorrect value! ({search_by_what_at_users})")
                             continue
                     if search_type == "ledger":
-                        search_by_what_at_ledger = get_input("What do you want to search by? \n 1 => user_id \n 2 => points \n 3 => reason \n").lower()
+                        search_by_what_at_ledger = get_input("What do you want to search by? \n 1 => user_id \n 2 => points \n 3 => reason \n 4 => conditions").lower()
                         if check_search_by_what_at_ledger(search_by_what_at_ledger):
                             if search_by_what_at_ledger in ("1", "user_id"):
-                                pass
-                                if search_by_what_at_ledger in ("2", "points"):
-                                    pass
+                                user_id = get_input("What user ID do you look for?")
+                                print_output_row_by_row(search_in_ledger_by_user_id(user_id))
+                            elif search_by_what_at_ledger in ("2", "points"):
+                                points = get_input("What point do you look for?")
+                                try:
+                                    points = int(points)
+                                except Exception as e:
+                                    print_error(f"Incorrect value! {points}", e)
+                                    continue
+                                print_output_row_by_row(search_in_ledger_by_point(points))
                             elif search_by_what_at_ledger in ("3", "reason"):
                                 keywords = []
                                 while True:
-                                    keyword_to_append = get_input("Add a keyword, if you don't want to add more, press enter. \n")
+                                    keyword_to_append = get_input("Add a keyword, if you don't want to add more, press enter.")
                                     if keyword_to_append != "":
                                         keywords.append(keyword_to_append)
                                     else:
                                         break
-                                print_output_row_by_row(search_ledger_by_keywords(keywords))
+                                print_output_row_by_row(search_in_ledger_by_keywords(keywords))
                 else:
                     print_error(f"incorrect value! ({search_type})")
                     continue
