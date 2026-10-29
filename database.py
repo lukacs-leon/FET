@@ -3,12 +3,16 @@ import sqlite3
 
 class FETDatabase:
     def __init__(self, db_name: str = 'FET.db'):
-        self.conn = sqlite3.connect(db_name)
-        self.cursor = self.conn.cursor()
+        self.db_name = db_name
         self.setup_tables()
 
+    def get_connection(self):
+        conn = sqlite3.connect(self.db_name)
+        return conn, conn.cursor()
+
     def setup_tables(self):
-        self.cursor.execute(
+        conn, cursor = self.get_connection()
+        cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS users (
             user_id TEXT PRIMARY KEY,
@@ -16,7 +20,7 @@ class FETDatabase:
             )
             """,
         )
-        self.cursor.execute(
+        cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS ledger (
             x_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -26,32 +30,41 @@ class FETDatabase:
             )
             """,
         )
-        self.conn.commit()
+        conn.commit()
+        conn.close()
 
     def add_user(self, user_id: str):
-        self.cursor.execute("INSERT INTO users (user_id, current_balance) values (?, 0)", (user_id,))
-        self.conn.commit()
+        conn, cursor = self.get_connection()
+        cursor.execute("INSERT INTO users (user_id, current_balance) values (?, 0)", (user_id,))
+        conn.commit()
+        conn.close()
         return True
 
     def add_points(self, user_id: str, points: int, reason: str):
-        self.cursor.execute(
+        conn, cursor = self.get_connection()
+        cursor.execute(
             """
             INSERT INTO ledger (user_id, points, reason) values (?, ?, ?)
             """,
             (user_id, points, reason),
         )
-        self.cursor.execute(
+        cursor.execute(
             "UPDATE users SET current_balance = current_balance + ? WHERE user_id = ?", 
             (points, user_id),
         )
-        self.conn.commit()
+        conn.commit()
+        conn.close()
         return True
 
     def check_user(self, user_id: str):
-        self.cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
-        return self.cursor.fetchone()
+        conn, cursor = self.get_connection()
+        cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
+        result = cursor.fetchone()
+        conn.close()
+        return result
 
     def get_table_data(self, table: str, order_by: str = "default", direction: str = "ASC"):
+        conn, cursor = self.get_connection()
         valid_dir = "DESC" if direction.upper() == "DESC" else "ASC"
         
         if table == "users":
@@ -61,26 +74,35 @@ class FETDatabase:
         else:
             col = "user_id"
 
-        self.cursor.execute(f"SELECT * FROM {table} ORDER BY {col} {valid_dir}")
-        return self.cursor.fetchall()
+        cursor.execute(f"SELECT * FROM {table} ORDER BY {col} {valid_dir}")
+        result = cursor.fetchall()
+        conn.close()
+        return result
 
     def search_users_by_id(self, user_id: str, order_by: str = "user_id", direction: str = "ASC"):
+        conn, cursor = self.get_connection()
         valid_dir = "DESC" if direction.upper() == "DESC" else "ASC"
         col = "current_balance" if order_by in ("balance", "current_balance", "points") else "user_id"
         
-        self.cursor.execute(f"SELECT * FROM users WHERE user_id LIKE ? ORDER BY {col} {valid_dir}", (f"%{user_id}%",))
-        return self.cursor.fetchall()
+        cursor.execute(f"SELECT * FROM users WHERE user_id LIKE ? ORDER BY {col} {valid_dir}", (f"%{user_id}%",))
+        result = cursor.fetchall()
+        conn.close()
+        return result
 
     def search_users_by_balance(self, balance: int, order_by: str = "user_id", direction: str = "ASC"):
+        conn, cursor = self.get_connection()
         valid_dir = "DESC" if direction.upper() == "DESC" else "ASC"
         col = "current_balance" if order_by in ("balance", "current_balance", "points") else "user_id"
         
-        self.cursor.execute(f"SELECT * FROM users WHERE current_balance = ? ORDER BY {col} {valid_dir}", (balance,))
-        return self.cursor.fetchall()
+        cursor.execute(f"SELECT * FROM users WHERE current_balance = ? ORDER BY {col} {valid_dir}", (balance,))
+        result = cursor.fetchall()
+        conn.close()
+        return result
 
     def search_ledger_by_keywords(self, keywords: List[str], order_by: str = "x_id", direction: str = "ASC"):
         if not keywords:
             return []
+        conn, cursor = self.get_connection()
         valid_dir = "DESC" if direction.upper() == "DESC" else "ASC"
         col = "points" if order_by in ("points", "balance") else "x_id"
 
@@ -91,24 +113,33 @@ class FETDatabase:
             params.append(f"%{kw}%")
         
         sql_query = f"SELECT * FROM ledger WHERE {' OR '.join(clauses)} ORDER BY {col} {valid_dir}"
-        self.cursor.execute(sql_query, tuple(params))
-        return self.cursor.fetchall()
+        cursor.execute(sql_query, tuple(params))
+        result = cursor.fetchall()
+        conn.close()
+        return result
 
     def search_ledger_by_user_id(self, user_id: str, order_by: str = "x_id", direction: str = "ASC"):
+        conn, cursor = self.get_connection()
         valid_dir = "DESC" if direction.upper() == "DESC" else "ASC"
         col = "points" if order_by in ("points", "balance") else "x_id"
         
-        self.cursor.execute(f"SELECT * FROM ledger WHERE user_id LIKE ? ORDER BY {col} {valid_dir}", (f"%{user_id}%",))
-        return self.cursor.fetchall()
+        cursor.execute(f"SELECT * FROM ledger WHERE user_id LIKE ? ORDER BY {col} {valid_dir}", (f"%{user_id}%",))
+        result = cursor.fetchall()
+        conn.close()
+        return result
 
     def search_ledger_by_point(self, point: int, order_by: str = "x_id", direction: str = "ASC"):
+        conn, cursor = self.get_connection()
         valid_dir = "DESC" if direction.upper() == "DESC" else "ASC"
         col = "points" if order_by in ("points", "balance") else "x_id"
         
-        self.cursor.execute(f"SELECT * FROM ledger WHERE points = ? ORDER BY {col} {valid_dir}", (point,))
-        return self.cursor.fetchall()
+        cursor.execute(f"SELECT * FROM ledger WHERE points = ? ORDER BY {col} {valid_dir}", (point,))
+        result = cursor.fetchall()
+        conn.close()
+        return result
 
     def search_users_with_conditions(self, user_id=None, min_balance=None, max_balance=None, order_by="user_id", direction="ASC"):
+        conn, cursor = self.get_connection()
         valid_dir = "DESC" if direction.upper() == "DESC" else "ASC"
         col = "current_balance" if order_by in ("balance", "current_balance", "points") else "user_id"
 
@@ -126,10 +157,13 @@ class FETDatabase:
             params.append(max_balance)
             
         sql_query += f" ORDER BY {col} {valid_dir}"
-        self.cursor.execute(sql_query, tuple(params))
-        return self.cursor.fetchall()
+        cursor.execute(sql_query, tuple(params))
+        result = cursor.fetchall()
+        conn.close()
+        return result
 
     def search_ledger_with_conditions(self, user_id=None, min_points=None, max_points=None, keywords=None, order_by="x_id", direction="ASC"):
+        conn, cursor = self.get_connection()
         valid_dir = "DESC" if direction.upper() == "DESC" else "ASC"
         col = "points" if order_by in ("points", "balance") else "x_id"
 
@@ -153,5 +187,7 @@ class FETDatabase:
             sql_query += f" AND ({' OR '.join(clauses)})"
             
         sql_query += f" ORDER BY {col} {valid_dir}"
-        self.cursor.execute(sql_query, tuple(params))
-        return self.cursor.fetchall()
+        cursor.execute(sql_query, tuple(params))
+        result = cursor.fetchall()
+        conn.close()
+        return result
