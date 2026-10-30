@@ -1,0 +1,21 @@
+# Python bytecode & cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# SQLite Database files (local data should not be tracked)
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE / Editor specific files
+.vscode/
+.idea/
+.DS_Store
+*.log

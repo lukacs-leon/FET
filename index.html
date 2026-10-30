@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FET - Family Evaluation Tool</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --card-hover: #24334a;
+            --accent: #10b981;
+            --accent-glow: rgba(16, 185, 129, 0.25);
+            --accent-hover: #059669;
+            --amber: #f59e0b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --border-focus: #475569;
+            --error-bg: rgba(239, 68, 68, 0.12);
+            --error-text: #f87171;
+            --success-bg: rgba(16, 185, 129, 0.12);
+            --success-text: #34d399;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 30px 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        header h1 {
+            color: var(--accent);
+            margin: 0;
+            font-size: 2.6rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            margin-top: 6px;
+            font-size: 1.05rem;
+            font-weight: 500;
+        }
+
+        /* Navigation Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 25px;
+            background: var(--card-bg);
+            padding: 6px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px 16px;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 4px 14px var(--accent-glow);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.25s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.25);
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 14px;
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            background-color: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+            background-color: rgba(15, 23, 42, 0.9);
+        }
+
+        button.primary-btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 13px 24px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+            box-shadow: 0 4px 14px var(--accent-glow);
+        }
+
+        button.primary-btn:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        /* Modern Result Tables */
+        .result-table-wrapper {
+            margin-top: 22px;
+            max-height: 380px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.92rem;
+        }
+
+        th {
+            background-color: rgba(30, 41, 59, 0.9);
+            color: var(--text-muted);
+            padding: 14px 18px;
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .badge-positive {
+            background: var(--success-bg);
+            color: var(--success-text);
+        }
+
+        .badge-negative {
+            background: var(--error-bg);
+            color: var(--error-text);
+        }
+
+        .status-box {
+            margin-top: 18px;
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .status-success {
+            background-color: var(--success-bg);
+            color: var(--success-text);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+
+        .status-error {
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+        }
+
+        .config-card {
+            border-left: 4px solid var(--accent);
+        }
+
+        /* Overview Tab Formatting */
+        .project-description {
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        .project-description h3 {
+            color: var(--text-main);
+            margin-top: 20px;
+            font-size: 1.1rem;
+        }
+
+        .project-description ul {
+            padding-left: 20px;
+        }
+
+        .project-description li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>🏡 FET Dashboard</h1>
+            <p>Family Evaluation Tool — Modern Web Interface</p>
+        </header>
+
+        <!-- API Connection Config (Always visible) -->
+        <div class="card config-card">
+            <h2>⚙️ API Connection</h2>
+            <div style="display: flex; gap: 12px;">
+                <input type="text" id="apiUrl" value="https://verbose-space-palm-tree-7v7v4w9jjg49frr6q-8000.app.github.dev" placeholder="API Base URL">
+                <button class="primary-btn" style="width: 170px;" onclick="testConnection()">Test Connection</button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('main')">🏠 Overview</button>
+            <button class="tab-btn" onclick="switchTab('list')">📊 Data Tables</button>
+            <button class="tab-btn" onclick="switchTab('add')">➕ Operations</button>
+            <button class="tab-btn" onclick="switchTab('search')">🔍 Search</button>
+        </div>
+
+        <!-- TAB 0: Main / Overview -->
+        <div id="tab-main" class="tab-content active">
+            <div class="card">
+                <h2>📖 About the Project</h2>
+                <div class="project-description">
+                    <p>Welcome to the <strong>Family Evaluation Tool (FET)</strong> web interface! This application is designed for transparent and gamified tracking of family members' points, tasks, and evaluations.</p>
+                    
+                    <h3>💡 Core Features:</h3>
+                    <ul>
+                        <li><strong>Balances & Points:</strong> Manage family members and track their current scores.</li>
+                        <li><strong>Transaction Ledger:</strong> Every point addition or deduction is logged with custom reasons.</li>
+                        <li><strong>Advanced Search:</strong> Filter records by user ID, balance ranges, or keywords.</li>
+                    </ul>
+
+                    <h3>🚀 Upcoming Roadmap:</h3>
+                    <ul>
+                        <li>Timestamps support for ledger entries.</li>
+                        <li>Visual statistics and charts for point tracking.</li>
+                        <li>Family groups and registration backend support.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 1: List & Browse -->
+        <div id="tab-list" class="tab-content">
+            <div class="card">
+                <h2>📊 Table Browser</h2>
+                <div class="row">
+                    <div class="form-group">
+                        <label>Table Name</label>
+                        <select id="listTable">
+                            <option value="users">users</option>
+                            <option value="ledger">ledger</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Order By</label>
+                        <select id="listOrderBy">
+                            <option value="user_id">ID / Name</option>
+                            <option value="balance">Balance / Points</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <label>Direction</label>
+                        <select id="listDirection">
+                            <option value="ASC">ASC (Low &rarr; High / A-Z)</option>
+                            <option value="DESC">DESC (High &rarr; Low / Z-A)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: flex-end;">
+                        <button class="primary-btn" onclick="fetchTableData()">Fetch Table Data</button>
+                    </div>
+                </div>
+                
+                <div id="listOutputContainer" class="result-table-wrapper" style="display: none;">
+                    <table id="listTableElement">
+                        <thead id="listTableHead"></thead>
+                        <tbody id="listTableBody"></tbody>
+                    </table>
+                </div>
+                <div id="listPlaceholder" style="text-align: center; color: var(--text-muted); padding: 35px; font-style: italic;">
+                    Select a table and click fetch to view records.
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: Add Data -->
+        <div id="tab-add" class="tab-content">
+            <div class="card">
+                <h2>➕ Record Management</h2>
+                <div class="form-group">
+                    <label>Action Type</label>
+                    <select id="addType" onchange="toggleAddFields()">
+                        <option value="user">Add New User</option>
+                        <option value="point">Add Points / Deduction</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>User ID / Name</label>
+                    <input type="text" id="addUserId" placeholder="e.g. LEON3">
+                </div>
+
+                <div id="pointFields" style="display: none;">
+                    <div class="form-group">
+                        <label>Points (Use minus for deduction)</label>
+                        <input type="number" id="addPointsVal" placeholder="e.g. 50 or -10">
+                    </div>
+                    <div class="form-group">
+                        <label>Reason</label>
+                        <input type="text" id="addReason" placeholder="e.g. Cleaning room">
+                    </div>
+                </div>
+
+                <button class="primary-btn" onclick="submitAdd()">Submit Record</button>
+                <div id="addOutput" class="status-box"></div>
+            </div>
+        </div>
+
+        <!-- TAB 3: Advanced Search -->
+        <div id="tab-search" class="tab-content">
+            <div class="card">
+                <h2>🔍 Advanced Filters & Search</h2>
+                <div class="form-group">
+                    <label>Search Target</label>
+                    <select id="searchTarget" onchange="toggleSearchFields()">
+                        <option value="users">Search Users</option>
+                        <option value="ledger">Search Ledger</option>
+                    </select>
+                </div>
+
+                <div id="userSearchFields">
+                    <div class="form-group">
+                        <label>User ID (Contains)</label>
+                        <input type="text" id="searchUserId" placeholder="e.g. LEON">
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label>Min Balance</label>
+                            <input type="number" id="searchMinBalance" placeholder="e.g. 0">
+                        </div>
+                        <div class="form-group">
+                            <label>Max Balance</label>
+                            <input type="number" id="searchMaxBalance" placeholder="e.g. 100">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="ledgerSearchFields" style="display: none;">
+                    <div class="form-group">
+                        <label>User ID (Contains)</label>
+                        <input type="text" id="searchLedgerUserId" placeholder="e.g. LEON">
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label>Min Points</label>
+                            <input type="number" id="searchMinPoints" placeholder="e.g. -50">
+                        </div>
+                        <div class="form-group">
+                            <label>Max Points</label>
+                            <input type="number" id="searchMaxPoints" placeholder="e.g. 100">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Keywords in Reason (comma separated)</label>
+                        <input type="text" id="searchKeywords" placeholder="e.g. room, homework">
+                    </div>
+                </div>
+
+                <button class="primary-btn" onclick="submitSearch()">Execute Search</button>
+
+                <div id="searchOutputContainer" class="result-table-wrapper" style="display: none; margin-top: 20px;">
+                    <table id="searchTableElement">
+                        <thead id="searchTableHead"></thead>
+                        <tbody id="searchTableBody"></tbody>
+                    </table>
+                </div>
+                <div id="searchPlaceholder" style="text-align: center; color: var(--text-muted); padding: 35px; font-style: italic;">
+                    No search results yet.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function getBaseUrl() {
+            let url = document.getElementById('apiUrl').value.trim();
+            if (url.endsWith('/')) {
+                url = url.slice(0, -1);
+            }
+            return url;
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            const tabs = ['main', 'list', 'add', 'search'];
+            const index = tabs.indexOf(tabName);
+            if (index !== -1) {
+                document.querySelectorAll('.tab-btn')[index].classList.add('active');
+                document.getElementById(`tab-${tabName}`).classList.add('active');
+            }
+        }
+
+        async function testConnection() {
+            try {
+                const res = await fetch(`${getBaseUrl()}/api/tables/users`);
+                if (res.ok) {
+                    alert("Successfully connected to FastAPI backend!");
+                } else {
+                    alert("Connected, but received error status: " + res.status);
+                }
+            } catch (err) {
+                alert("Connection failed! Make sure uvicorn is running and URL is correct.\nError: " + err.message);
+            }
+        }
+
+        function renderTable(data, tableType, headElId, bodyElId, containerElId, placeholderElId) {
+            const headEl = document.getElementById(headElId);
+            const bodyEl = document.getElementById(bodyElId);
+            const containerEl = document.getElementById(containerElId);
+            const placeholderEl = document.getElementById(placeholderElId);
+
+            headEl.innerHTML = '';
+            bodyEl.innerHTML = '';
+
+            if (!data || data.length === 0) {
+                containerEl.style.display = 'none';
+                placeholderEl.style.display = 'block';
+                placeholderEl.innerText = "No records found.";
+                return;
+            }
+
+            containerEl.style.display = 'block';
+            placeholderEl.style.display = 'none';
+
+            let headers = [];
+            if (tableType === 'users') {
+                headers = ['User ID / Name', 'Current Balance'];
+            } else {
+                headers = ['Transaction ID', 'User ID', 'Points', 'Reason'];
+            }
+
+            let trHead = document.createElement('tr');
+            headers.forEach(h => {
+                let th = document.createElement('th');
+                th.innerText = h;
+                trHead.appendChild(th);
+            });
+            headEl.appendChild(trHead);
+
+            data.forEach(row => {
+                let tr = document.createElement('tr');
+                if (tableType === 'users') {
+                    let td1 = document.createElement('td');
+                    td1.innerHTML = `<strong>${row[0]}</strong>`;
+                    let td2 = document.createElement('td');
+                    let bal = row[1];
+                    let badgeClass = bal >= 0 ? 'badge-positive' : 'badge-negative';
+                    td2.innerHTML = `<span class="badge ${badgeClass}">${bal} pts</span>`;
+                    tr.appendChild(td1);
+                    tr.appendChild(td2);
+                } else {
+                    let td1 = document.createElement('td');
+                    td1.innerText = `#${row[0]}`;
+                    let td2 = document.createElement('td');
+                    td2.innerHTML = `<strong>${row[1]}</strong>`;
+                    let td3 = document.createElement('td');
+                    let pts = row[2];
+                    let badgeClass = pts >= 0 ? 'badge-positive' : 'badge-negative';
+                    td3.innerHTML = `<span class="badge ${badgeClass}">${pts > 0 ? '+' + pts : pts}</span>`;
+                    let td4 = document.createElement('td');
+                    td4.innerText = row[3];
+                    tr.appendChild(td1);
+                    tr.appendChild(td2);
+                    tr.appendChild(td3);
+                    tr.appendChild(td4);
+                }
+                bodyEl.appendChild(tr);
+            });
+        }
+
+        async function fetchTableData() {
+            const table = document.getElementById('listTable').value;
+            const orderBy = document.getElementById('listOrderBy').value;
+            const direction = document.getElementById('listDirection').value;
+
+            try {
+                const res = await fetch(`${getBaseUrl()}/api/tables/${table}?order_by=${orderBy}&direction=${direction}`);
+                const data = await res.json();
+                
+                if (res.ok) {
+                    renderTable(data.data, table, 'listTableHead', 'listTableBody', 'listOutputContainer', 'listPlaceholder');
+                } else {
+                    alert("Error loading data");
+                }
+            } catch (err) {
+                alert("Request failed: " + err.message);
+            }
+        }
+
+        function toggleAddFields() {
+            const type = document.getElementById('addType').value;
+            const pointFields = document.getElementById('pointFields');
+            pointFields.style.display = (type === 'point') ? 'block' : 'none';
+        }
+
+        function toggleSearchFields() {
+            const target = document.getElementById('searchTarget').value;
+            document.getElementById('userSearchFields').style.display = (target === 'users') ? 'block' : 'none';
+            document.getElementById('ledgerSearchFields').style.display = (target === 'ledger') ? 'block' : 'none';
+        }
+
+        async function submitAdd() {
+            const type = document.getElementById('addType').value;
+            const userId = document.getElementById('addUserId').value.trim();
+            const outputBox = document.getElementById('addOutput');
+            outputBox.style.display = 'block';
+
+            if (!userId) {
+                outputBox.className = "status-box status-error";
+                outputBox.innerText = "Error: User ID cannot be empty.";
+                return;
+            }
+
+            try {
+                let res, data;
+                if (type === 'user') {
+                    res = await fetch(`${getBaseUrl()}/api/users`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: userId })
+                    });
+                    data = await res.json();
+                } else {
+                    const points = parseInt(document.getElementById('addPointsVal').value);
+                    const reason = document.getElementById('addReason').value.trim();
+                    
+                    const checkRes = await fetch(`${getBaseUrl()}/api/users/check/${userId}`);
+                    const checkData = await checkRes.json();
+                    
+                    if (!checkData.exists) {
+                        if (confirm(`User '${userId}' does not exist. Do you want to create it first?`)) {
+                            await fetch(`${getBaseUrl()}/api/users`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ user_id: userId })
+                            });
+                        } else {
+                            outputBox.className = "status-box status-error";
+                            outputBox.innerText = "Operation cancelled.";
+                            return;
+                        }
+                    }
+
+                    res = await fetch(`${getBaseUrl()}/api/points`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: userId, points: points, reason: reason })
+                    });
+                    data = await res.json();
+                }
+
+                if (res.ok) {
+                    outputBox.className = "status-box status-success";
+                    outputBox.innerText = "Success: " + (data.message || "Operation completed successfully.");
+                } else {
+                    outputBox.className = "status-box status-error";
+                    outputBox.innerText = "Error: " + (data.detail || JSON.stringify(data));
+                }
+            } catch (err) {
+                outputBox.className = "status-box status-error";
+                outputBox.innerText = "Request failed: " + err.message;
+            }
+        }
+
+        async function submitSearch() {
+            const target = document.getElementById('searchTarget').value;
+
+            try {
+                let res, data;
+                if (target === 'users') {
+                    const userId = document.getElementById('searchUserId').value.trim() || null;
+                    const minBal = document.getElementById('searchMinBalance').value !== "" ? parseInt(document.getElementById('searchMinBalance').value) : null;
+                    const maxBal = document.getElementById('searchMaxBalance').value !== "" ? parseInt(document.getElementById('searchMaxBalance').value) : null;
+
+                    res = await fetch(`${getBaseUrl()}/api/search/users/conditions`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            user_id: userId,
+                            min_balance: minBal,
+                            max_balance: maxBal
+                        })
+                    });
+                } else {
+                    const userId = document.getElementById('searchLedgerUserId').value.trim() || null;
+                    const minPts = document.getElementById('searchMinPoints').value !== "" ? parseInt(document.getElementById('searchMinPoints').value) : null;
+                    const maxPts = document.getElementById('searchMaxPoints').value !== "" ? parseInt(document.getElementById('searchMaxPoints').value) : null;
+                    const rawKw = document.getElementById('searchKeywords').value.trim();
+                    const keywords = rawKw ? rawKw.split(',').map(k => k.trim()) : null;
+
+                    res = await fetch(`${getBaseUrl()}/api/search/ledger/conditions`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            user_id: userId,
+                            min_points: minPts,
+                            max_points: maxPts,
+                            keywords: keywords
+                        })
+                    });
+                }
+
+                data = await res.json();
+                if (res.ok) {
+                    renderTable(data.results, target, 'searchTableHead', 'searchTableBody', 'searchOutputContainer', 'searchPlaceholder');
+                } else {
+                    alert("Search error occurred.");
+                }
+            } catch (err) {
+                alert("Request failed: " + err.message);
+            }
+        }
+    </script>
+</body>
+</html>
